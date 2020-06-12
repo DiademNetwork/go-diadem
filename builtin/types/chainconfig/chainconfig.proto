@@ -1,0 +1,157 @@
+syntax = "proto3";
+package chainconfig;
+import "github.com/diademnetwork/go-diadem/types/types.proto";
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+
+message InitRequest {
+    Address owner = 1;
+    Params params = 2;
+    repeated Feature features = 3; 
+}
+
+message GetFeatureRequest {
+    string name = 1;
+}
+
+message AddFeatureRequest {
+    repeated string names = 1;
+    uint64 build_number = 2;
+    bool auto_enable = 3;
+}
+
+message AddFeatureResponse {
+}
+
+message GetFeatureResponse {
+    Feature feature = 1;
+}
+
+message Feature {
+    string name = 1;
+    enum FeatureStatus {
+        PENDING = 0;
+        WAITING = 1;
+        ENABLED = 2;
+        DISABLED = 3;
+    }
+    FeatureStatus status = 2;
+    repeated Address validators = 3;
+
+    //Percentage of feature enabled validators exceeds vote_threshold at this block_height
+    uint64 block_height = 4;
+
+    //Feature changes status from `pending` to `waiting` with at this percentage
+    uint64 percentage = 5;
+
+    //Minimum build number that supports this feature
+    uint64 build_number = 6;
+
+    //Pending feature is automatically enabled if it is supported in current build
+    bool auto_enable = 7;
+}
+
+message ValidatorInfo{
+    Address address = 1; 
+    uint64 build_number = 2;
+    uint64 updated_at = 3;
+}
+
+message Params {
+    uint64 vote_threshold = 1;
+    uint64 num_block_confirmations = 2;
+}
+
+message SetParamsRequest {
+    Params params = 1;
+}
+
+message GetParamsRequest {
+}
+
+message GetParamsResponse {
+    Params params = 1;
+}
+
+message ListFeaturesRequest {
+}
+
+message ListFeaturesResponse {
+    repeated Feature features = 1;
+}
+
+message EnableFeatureRequest {
+    repeated string names = 1;
+}
+
+message EnableFeatureResponse {
+}
+
+message RemoveFeatureRequest {
+    repeated string names = 1;
+}
+
+// An action represents a pending change to the on-chain config.
+message Action {
+    string name = 1; // Key matching the config setting that should be changed.
+    string value = 2; // The new value for the config setting.
+    uint64 build_number = 3; // Minimum build number required for this change to take effect.
+}
+
+message AppStoreConfig {
+    uint64 num_evm_keys_to_prune = 1 [(gogoproto.jsontag) = "num_evm_keys_to_prune"];
+    uint64 iavl_flush_interval = 2 [(gogoproto.customname) = "IAVLFlushInterval", (gogoproto.jsontag) = "iavl_flush_interval"];
+    uint64 prune_evm_keys_interval = 3 [(gogoproto.jsontag) = "prune_evm_keys_interval"];
+}
+
+message EvmConfig {
+    uint64 gas_limit = 1 [(gogoproto.jsontag) = "gas_limit"];
+}
+
+message NonceHandlerConfig {
+    bool inc_nonce_on_failed_tx = 1 [(gogoproto.jsontag) = "inc_nonce_on_failed_tx"];
+}
+
+message Config {
+    EvmConfig evm = 1;
+    AppStoreConfig app_store = 2;
+    NonceHandlerConfig nonce_handler = 3;
+}
+
+message SetSettingRequest {
+    string name = 1;
+    string value = 2;
+    uint64 build_number = 3;
+}
+
+message ListPendingActionsRequest {
+}
+
+message ListPendingActionsResponse {
+    repeated Action actions = 1;
+}
+
+message ChainConfigRequest {
+}
+
+message ChainConfigResponse {
+    Config config = 1;
+}
+
+message SetValidatorInfoRequest {
+    uint64 build_number = 1;
+}
+
+message GetValidatorInfoRequest {
+    Address address = 1;
+}
+
+message GetValidatorInfoResponse {
+    ValidatorInfo validator = 1;
+}
+
+message ListValidatorsInfoRequest {
+}
+
+message ListValidatorsInfoResponse {
+    repeated ValidatorInfo validators = 1;
+}
